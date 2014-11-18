@@ -14,11 +14,13 @@ README.md: this file
 CodeBook.md: the code book  
 run_analysis.R: the main R script  
 tidy_data.csv: the output csv data file  
-UCI HAR Dataset/: contains raw dataset
+getdata-projectfiles-UCI HAR Dataset.zip: contains raw dataset
 
 How to generate the tidy_data.csv
 ---
-Go to this directory and run this run_analysis.R script  
+* Go to this directory  
+* Extract getdata-projectfiles-UCI HAR Dataset.zip to current directory
+* Run run_analysis.R script  
 
 Testing Environment
 ---
