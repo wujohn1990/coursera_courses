@@ -1,0 +1,79 @@
+---
+title: "Coursera repdata-016: Project2"
+output: html_document
+---
+
+## Synopsis
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
+
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
+
+(cited from coursera course project instructions)
+
+## R sessionInfo
+```{r}
+sessionInfo()
+```
+
+## Data Processing
+download and load the raw data
+```{r ,cache=TRUE}
+# download data
+library(RCurl)
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", destfile = 'data.csv.bz2',method='curl')
+# extract csv data
+#library(R.utils)
+#bunzip2("data.csv.bz2",destname = 'data.csv', overwrite=TRUE, remove=F)
+# read in data
+data<-read.table(bzfile('data.csv.bz2'),header=T,sep=',')
+dim(data)
+names(data)
+```
+
+process the data  
+
+* population health  
+use "data\$FATALITIES+data\$INJURIES" as measure of population health
+```{r ,cache=TRUE}
+data$health = data$FATALITIES+data$INJURIES
+health=aggregate(data$health,by=list(data$EVTYPE),sum,na.rm=T)
+names(health)=c('type','num')
+# select top 10 types
+health=health[order(health$num,decreasing = T),]
+health=health[1:10,]
+print(health)
+```
+
+* economic  
+use PROPDMG and CROPDMG as measure of economic loss
+```{r ,cache=TRUE}
+# process the raw PROPDMGEXP and CROPDMGEXP 
+unique(data$PROPDMGEXP)
+unique(data$CROPDMGEXP)
+library(plyr)
+data$propexpnum <- as.numeric(as.character((revalue(data$PROPDMGEXP, c("B"=9, "M" = 6, "m" = 6,"K" = 3,"H" = 2, "h" = 2,"-"= NA, "+" =NA, "?" = NA)))))
+data$croexpnum <- as.numeric(as.character(revalue(data$CROPDMGEXP, c("B"=9, "M" = 6, "m" = 6,"K" = 3,"k" = 3, "?" =NA))))
+data$econ = data$PROPDMG*10^data$propexpnum+data$CROPDMG*10^data$croexpnum
+# top 10 types
+econ=aggregate(data$econ,by=list(data$EVTYPE),sum,na.rm=T)
+names(econ)=c('type','num')
+# select top 10 types
+econ=econ[order(econ$num,decreasing = T),]
+econ=econ[1:10,]
+print(econ)
+```
+
+## Results
+```{r}
+par(mar=c(12,4,4,2))
+barplot(health$num,names.arg = health$type,main='population health',las=2)
+barplot(econ$num,names.arg = econ$type,main='economic',las=2)
+```  
+
+So,
+ - population health: tornado
+ - economic consequences: flood
+
+
+
+
