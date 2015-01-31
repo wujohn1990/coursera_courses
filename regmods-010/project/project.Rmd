@@ -1,0 +1,78 @@
+---
+title: "project of regmods-010"
+output:
+  pdf_document: default
+---
+
+## Executive summary
+The goal of this project is to find out:
+- “Is an automatic or manual transmission better for MPG”
+- "Quantify the MPG difference between automatic and manual transmissions"
+
+Results:
+On a significant level of 99%, manual is better than automatic in terms of mpg.
+Regression shows Manual is 2.083710 mpg better than Automatic.
+
+## Data Processing
+
+```{r}
+library(datasets)
+data(mtcars)
+#str(mtcars)
+# am is factor variable
+mtcars$am <- as.factor(mtcars$am)
+levels(mtcars$am) <- c("Automatic", "Manual")
+```
+
+
+## Exploratory Data Analysis
+```{r,eval=FALSE}
+# look at the y values
+hist(mtcars$mpg,20,probability = T, main='histogram of mpg and fitted dnesity')
+lines(density(mtcars$mpg))
+# relation ship between y and other x values
+pairs(mtcars)
+```
+
+In particular, how mpg differs in am.
+```{r,eval=FALSE}
+boxplot(mpg~am, data = mtcars,
+        main = "mpg vs am")
+```
+
+Do a hypothesis testing
+```{r}
+t.test(mtcars$mpg[mtcars$am=='Automatic'], mtcars$mpg[mtcars$am=='Manual'])
+``` 
+On a significant level of 99%, manual is better than automatic in terms of mpg.
+
+
+## Regression Analysis
+```{r}
+# simple linear regression
+fit0 = lm(mpg~am, mtcars)
+#summary(fit0)
+# multiple regression
+fit1 <- lm(mpg~am + wt + hp, data = mtcars)
+#summary(fit1)
+par(mfrow = c(2,2))
+plot(fit1)
+# anova test
+anova(fit0, fit1)
+```
+From fit1 model, we can see that Manual is 2.083710 mpg better than automatic.
+
+## Appendix
+```{r,echo=FALSE}
+boxplot(mpg~am, data = mtcars,
+        main = "mpg vs am")
+```
+
+```{r,echo=FALSE}
+# look at the y values
+hist(mtcars$mpg,20,probability = T, main='histogram of mpg and fitted dnesity')
+lines(density(mtcars$mpg))
+# relation ship between y and other x values
+pairs(mtcars)
+```
+
